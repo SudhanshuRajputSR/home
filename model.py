@@ -1,19 +1,51 @@
-img_size = 48
-batch_size = 64
+# Initialising the CNN
+model = Sequential()
 
-datagen_train = ImageDataGenerator(horizontal_flip=True)
+# 1 - Convolution
+model.add(Conv2D(64,(3,3), padding='same', input_shape=(48, 48,1)))
+model.add(BatchNormalization())
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.25))
 
-train_generator = datagen_train.flow_from_directory("train/",
-                                                    target_size=(img_size,img_size),
-                                                    color_mode="grayscale",
-                                                    batch_size=batch_size,
-                                                    class_mode='categorical',
-                                                    shuffle=True)
+# 2nd Convolution layer
+model.add(Conv2D(128,(5,5), padding='same'))
+model.add(BatchNormalization())
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.25))
 
-datagen_validation = ImageDataGenerator(horizontal_flip=True)
-validation_generator = datagen_validation.flow_from_directory("test/",
-                                                    target_size=(img_size,img_size),
-                                                    color_mode="grayscale",
-                                                    batch_size=batch_size,
-                                                    class_mode='categorical',
-                                                    shuffle=False)
+# 3rd Convolution layer
+model.add(Conv2D(512,(3,3), padding='same'))
+model.add(BatchNormalization())
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.25))
+
+# 4th Convolution layer
+model.add(Conv2D(512,(3,3), padding='same'))
+model.add(BatchNormalization())
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.25))
+
+# Flattening
+model.add(Flatten())
+
+# Fully connected layer 1st layer
+model.add(Dense(256))
+model.add(BatchNormalization())
+model.add(Activation('relu'))
+model.add(Dropout(0.25))
+
+# Fully connected layer 2nd layer
+model.add(Dense(512))
+model.add(BatchNormalization())
+model.add(Activation('relu'))
+model.add(Dropout(0.25))
+
+model.add(Dense(7, activation='softmax'))
+
+opt = Adam(lr=0.0005)
+model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
+model.summary()

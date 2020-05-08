@@ -1,30 +1,19 @@
-from tensorflow.keras.models import model_from_json
-import numpy as np
+img_size = 48
+batch_size = 64
 
-import tensorflow as tf
+datagen_train = ImageDataGenerator(horizontal_flip=True)
 
-config = tf.compat.v1.ConfigProto()
-config.gpu_options.per_process_gpu_memory_fraction = 0.15
-session = tf.compat.v1.Session(config=config)
+train_generator = datagen_train.flow_from_directory("train/",
+                                                    target_size=(img_size,img_size),
+                                                    color_mode="grayscale",
+                                                    batch_size=batch_size,
+                                                    class_mode='categorical',
+                                                    shuffle=True)
 
-
-class FacialExpressionModel(object):
-
-    EMOTIONS_LIST = ["Angry", "Disgust",
-                     "Fear", "Happy",
-                     "Neutral", "Sad",
-                     "Surprise"]
-
-    def __init__(self, model_json_file, model_weights_file):
-        # load model from JSON file
-        with open(model_json_file, "r") as json_file:
-            loaded_model_json = json_file.read()
-            self.loaded_model = model_from_json(loaded_model_json)
-
-        # load weights into the new model
-        self.loaded_model.load_weights(model_weights_file)
-        self.loaded_model._make_predict_function()
-
-    def predict_emotion(self, img):
-        self.preds = self.loaded_model.predict(img)
-        return FacialExpressionModel.EMOTIONS_LIST[np.argmax(self.preds)]
+datagen_validation = ImageDataGenerator(horizontal_flip=True)
+validation_generator = datagen_validation.flow_from_directory("test/",
+                                                    target_size=(img_size,img_size),
+                                                    color_mode="grayscale",
+                                                    batch_size=batch_size,
+                                                    class_mode='categorical',
+                                                    shuffle=False)
